@@ -15,12 +15,14 @@ import ru.mokolomyagi.kolobox.data.MediaItemData
 import ru.mokolomyagi.kolobox.data.MediaType
 import ru.mokolomyagi.kolobox.smb.SMBJSmbClient
 import ru.mokolomyagi.kolobox.smb.SmbSettingsManager
+import ru.mokolomyagi.kolobox.ui.MediaDisplayListener
 import ru.mokolomyagi.kolobox.ui.adapters.MediaCarouselAdapter
 import java.net.URI
 import java.nio.file.Paths
 
-class MediaCarouselFragment : Fragment() {
+class MediaCarouselFragment : Fragment(), MediaDisplayListener {
 
+    private var currentPosition: Int = 0
     private lateinit var viewPager: ViewPager2
     private lateinit var mediaItems: List<MediaItemData>
 
@@ -33,6 +35,11 @@ class MediaCarouselFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
+    }
+
+    override fun onMediaDisplayFinished() {
+        val nextPosition = (currentPosition + 1) % mediaItems.size
+        viewPager.setCurrentItem(nextPosition, true)
     }
 
     override fun onCreateView(
@@ -65,11 +72,7 @@ class MediaCarouselFragment : Fragment() {
 
                 viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
-                        if (position == mediaItems.lastIndex) {
-                            viewPager.postDelayed({
-                                viewPager.setCurrentItem(0, true)
-                            }, 5000)
-                        }
+                        currentPosition = position
                     }
                 })
             }

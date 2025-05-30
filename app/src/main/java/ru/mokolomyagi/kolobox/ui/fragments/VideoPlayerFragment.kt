@@ -9,6 +9,7 @@ import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
@@ -23,6 +24,7 @@ import ru.mokolomyagi.kolobox.smb.CacheProvider
 import ru.mokolomyagi.kolobox.smb.SMBJSmbClient
 import ru.mokolomyagi.kolobox.smb.SmbDataSource
 import ru.mokolomyagi.kolobox.smb.SmbSettingsManager
+import ru.mokolomyagi.kolobox.ui.MediaDisplayListener
 
 class VideoPlayerFragment : Fragment() {
 
@@ -114,6 +116,14 @@ class VideoPlayerFragment : Fragment() {
             exoPlayer.prepare()
             exoPlayer.play()
         }
+
+        player?.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    (parentFragment as? MediaDisplayListener)?.onMediaDisplayFinished()
+                }
+            }
+        })
     }
 
     override fun onStop() {

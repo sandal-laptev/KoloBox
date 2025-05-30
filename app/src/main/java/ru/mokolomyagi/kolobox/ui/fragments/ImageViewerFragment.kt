@@ -15,6 +15,7 @@ import ru.mokolomyagi.kolobox.R
 import ru.mokolomyagi.kolobox.smb.GlideApp
 import ru.mokolomyagi.kolobox.smb.SMBJSmbClient
 import ru.mokolomyagi.kolobox.smb.SmbSettingsManager
+import ru.mokolomyagi.kolobox.ui.MediaDisplayListener
 import java.io.File
 
 class ImageViewerFragment : Fragment() {
@@ -56,10 +57,16 @@ class ImageViewerFragment : Fragment() {
                     }
                 }
 
+                // После загрузки изображения
                 withContext(Dispatchers.Main) {
                     GlideApp.with(this@ImageViewerFragment)
                         .load(tempFile)
                         .into(photoView)
+
+                    // Уведомим через 5 секунд
+                    photoView.postDelayed({
+                        (parentFragment as? MediaDisplayListener)?.onMediaDisplayFinished()
+                    }, 5000)
                 }
 
             } catch (e: Exception) {
