@@ -1,32 +1,44 @@
 package ru.mokolomyagi.kolobox
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import ru.mokolomyagi.kolobox.ui.fragments.ImageViewerFragment
 import ru.mokolomyagi.kolobox.ui.fragments.MediaCarouselFragment
-import ru.mokolomyagi.kolobox.ui.fragments.VideoPlayerFragment
 
 class MediaViewerActivity : AppCompatActivity() {
+
+    private var initialRotationEnabled = true // только для возврата в MainActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_media_viewer)
 
-        val mediaType = intent.getStringExtra("media_type") ?: "video"
-        val mediaUrl = intent.getStringExtra("media_url") ?: ""
+        // Получаем, но не применяем ориентацию
+        initialRotationEnabled = intent.getBooleanExtra("rotation_enabled", true)
 
-//        val fragment = when (mediaType) {
-//            "image" -> ImageViewerFragment.newInstance(mediaUrl)
-//            "video" -> VideoPlayerFragment.newInstance(mediaUrl)
-//            else -> throw IllegalArgumentException("Unknown media type")
-//        }
-        
+        val mediaUrl = intent.getStringExtra("media_url") ?: ""
         val fragment = MediaCarouselFragment.newInstance(mediaUrl)
 
+        enterImmersiveMode()
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, fragment)
+            .commit()
+    }
+
+    override fun onBackPressed() {
+        val resultIntent = Intent().apply {
+            putExtra("restore_orientation", intent.getIntExtra("original_orientation", -1))
+        }
+        setResult(RESULT_OK, resultIntent)
+        super.onBackPressed()
+    }
+
+    private fun enterImmersiveMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
             WindowInsetsControllerCompat(window, window.decorView).let {
@@ -44,10 +56,7 @@ class MediaViewerActivity : AppCompatActivity() {
                             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     )
         }
-        supportActionBar?.hide() // скрыть верхнюю панель, если она есть
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.container, fragment)
-            .commit()
+        supportActionBar?.hide()
     }
 }
