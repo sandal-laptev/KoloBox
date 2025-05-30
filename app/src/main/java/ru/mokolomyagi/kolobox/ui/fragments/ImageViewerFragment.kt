@@ -76,6 +76,13 @@ class ImageViewerFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        view?.postDelayed({
+            (parentFragment as? MediaDisplayListener)?.onMediaDisplayFinished()
+        }, 5000)
+    }
+
     override fun onDestroyView() {
         job?.cancel()
         super.onDestroyView()

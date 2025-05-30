@@ -126,6 +126,16 @@ class VideoPlayerFragment : Fragment() {
         })
     }
 
+    fun onVisible() {
+        player?.seekTo(0)
+        player?.play()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        player?.playWhenReady = true
+    }
+
     override fun onStop() {
         super.onStop()
         player?.release()

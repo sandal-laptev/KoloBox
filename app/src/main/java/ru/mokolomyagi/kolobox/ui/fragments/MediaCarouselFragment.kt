@@ -39,7 +39,9 @@ class MediaCarouselFragment : Fragment(), MediaDisplayListener {
 
     override fun onMediaDisplayFinished() {
         val nextPosition = (currentPosition + 1) % mediaItems.size
-        viewPager.setCurrentItem(nextPosition, true)
+        viewPager.post {
+            viewPager.setCurrentItem(nextPosition, true)
+        }
     }
 
     override fun onCreateView(
@@ -73,6 +75,12 @@ class MediaCarouselFragment : Fragment(), MediaDisplayListener {
                 viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         currentPosition = position
+
+                        val fragmentTag = "f$position"  // ViewPager2 по умолчанию тегирует фрагменты как "f0", "f1", ...
+                        val fragment = childFragmentManager.findFragmentByTag(fragmentTag)
+                        if (fragment is VideoPlayerFragment) {
+                            fragment.onVisible()
+                        }
                     }
                 })
             }
